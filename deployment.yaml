@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-python-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-python-app
+  template:
+    metadata:
+      labels:
+        app: my-python-app
+    spec:
+      containers:
+        - name: ss/youtube-sock-puppet
+          image: ss/youtube-sock-puppet
+          ports:
+            - containerPort: 80
+          env:
+            - name: TZ
+              value: "America/Los_Angeles"
+            - name: DISPLAY
+              value: ":99"
+          command: ["python", "docker-api.py", "--build", "--run"]  # Replace with your actual command
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-python-service
+spec:
+  selector:
+    app: my-python-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer  # Change to ClusterIP or NodePort based on your requirements
