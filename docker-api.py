@@ -64,7 +64,7 @@ def get_training_videos(csv):
         'Right': in_range(slant, 'slant', 0.6, 1.1)
     }
 
-def spawn_containers(args, filename, LABLELS):
+def spawn_containers(args, filename, LABELS):
     # get docker client
     client = docker.from_env()
     
@@ -73,7 +73,8 @@ def spawn_containers(args, filename, LABLELS):
     #videos = get_training_videos(args.training_videos)
 
     # get seeds
-    seeds = pd.read_csv(filename)['video_id'].to_list()
+    seeds = pd.read_csv('./data/puppets/' + filename, header=None)[0].to_list()
+
     
     # spawn containers for each user
     count = 0
@@ -115,7 +116,7 @@ def spawn_containers(args, filename, LABLELS):
                 description='',
                 # output directory for sock puppet
                 outputDir='/output',
-                intervention=videos,
+                intervention=seeds,
                 # list of training videos
                 #training=training,
                 # number of training videos
@@ -159,7 +160,7 @@ def main():
         build_image()
         print("Build complete!")
 
-    if args.run:
+    if args.simulate:
         for filename in os.listdir("./data/puppets/"):
             spawn_containers(args, filename, [filename[:-4]])
 
