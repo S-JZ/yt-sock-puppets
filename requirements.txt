@@ -26,4 +26,4 @@ trio-websocket
 urllib3
 websocket-client
 wsproto
-YouTube-Driver
+

@@ -16,7 +16,9 @@ ENV TZ=America/Los_Angeles
 
 # copy items
 WORKDIR /app
-COPY data/puppets ./data/puppets/
+copy YTDriver.py ./
+copy helpers.py ./
+COPY arguments/ ./arguments/puppets/
 COPY sockpuppet.py ./
 COPY requirements.txt ./
 

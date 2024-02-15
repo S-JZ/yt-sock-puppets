@@ -159,7 +159,8 @@ def main():
         print("Starting docker build...")
         build_image()
         print("Build complete!")
-
+    if args.run:
+        spawn_containers(args, os.listdir("./data/puppets/")[0], [0])
     if args.simulate:
         for filename in os.listdir("./data/puppets/"):
             spawn_containers(args, filename, [filename[:-4]])
