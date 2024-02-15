@@ -11,7 +11,7 @@ import json
 IMAGE_NAME = 'ss/youtube-sock-puppet'
 OUTPUT_DIR = os.path.join(os.getcwd(), 'output')
 ARGS_DIR = os.path.join(os.getcwd(), 'arguments')
-NUM_TRAINING_VIDEOS = 5
+#NUM_TRAINING_VIDEOS = 5
 WATCH_DURATION = 30
 USERNAME = os.getuid()
 
@@ -23,7 +23,7 @@ def parse_args():
     parser.add_argument('--max-containers', default=10, type=int, help="Maximum number of concurrent containers")
     parser.add_argument('--sleep-duration', default=60, type=int, help="Time to sleep (in seconds) when max containers are reached and before spawning additional containers")
     parser.add_argument('--training-videos', default='data/training-videos.csv')
-    parser.add_argument('--testing-videos', default='data/testing-videos.csv')
+    parser.add_argument('--testing-videos', default='data/puppets/user_0.csv')
     args = parser.parse_args()
     return args, parser
 
@@ -64,18 +64,16 @@ def get_training_videos(csv):
         'Right': in_range(slant, 'slant', 0.6, 1.1)
     }
 
-def spawn_containers(args):
+def spawn_containers(args, filename, LABLELS):
     # get docker client
     client = docker.from_env()
     
-    # list of labels
-    LABELS = ['Left','Right']
 
     # get video distribution
-    videos = get_training_videos(args.training_videos)
+    #videos = get_training_videos(args.training_videos)
 
     # get seeds
-    seeds = pd.read_csv(args.testing_videos)['video_id'].to_list()
+    seeds = pd.read_csv(filename)['video_id'].to_list()
     
     # spawn containers for each user
     count = 0
@@ -88,11 +86,11 @@ def spawn_containers(args):
         os.makedirs(OUTPUT_DIR)
 
     # training ideology
-    for training_label in LABELS:
+    for label in LABELS:
 
         # user watch history for training
         # * 2 for additional backups
-        training = videos[training_label].sample(NUM_TRAINING_VIDEOS * 2).to_list()
+        #training = videos[training_label].sample(NUM_TRAINING_VIDEOS * 2).to_list()
         
         # check for running container list
         while max_containers_reached(client, args.max_containers):
@@ -105,7 +103,7 @@ def spawn_containers(args):
         testSeed = choice(seeds)
 
         # generate a unique puppet identifier
-        puppetId = f'{training_label},{testSeed},{str(uuid4())[:8]}'
+        puppetId = f'{label},{testSeed},{str(uuid4())[:8]}'
 
         # write arguments to a file
         with open(os.path.join(ARGS_DIR, f'{puppetId}.json'), 'w') as f:
@@ -117,14 +115,15 @@ def spawn_containers(args):
                 description='',
                 # output directory for sock puppet
                 outputDir='/output',
+                intervention=videos,
                 # list of training videos
-                training=training,
+                #training=training,
                 # number of training videos
-                trainingN=NUM_TRAINING_VIDEOS,
+                #trainingN=NUM_TRAINING_VIDEOS,
                 # seed video
                 testSeed=testSeed,
                 # steps to perform
-                steps='train,test'
+                steps='intervention'
             )
             json.dump(puppetArgs, f, indent=4)
 
@@ -161,7 +160,8 @@ def main():
         print("Build complete!")
 
     if args.run:
-        spawn_containers(args)
+        for filename in os.listdir("./data/puppets/"):
+            spawn_containers(args, filename, [filename[:-4]])
 
     if not args.build and not args.run:
         parser.print_help()
