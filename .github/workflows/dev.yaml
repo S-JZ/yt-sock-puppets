@@ -9,7 +9,7 @@ env:
     AZURE_CONTAINER_REGISTRY: sockppts
     CLUSTER_NAME: clusters
     CLUSTER_RESOURCE_GROUP: yt
-    CONTAINER_NAME: youtube-sock-puppet
+    CONTAINER_NAME: ss/youtube-sock-puppet
     DEPLOYMENT_MANIFEST_PATH: |
         ./deployment.yaml
 jobs:
