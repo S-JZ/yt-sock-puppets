@@ -16,6 +16,7 @@ ENV TZ=America/Los_Angeles
 
 # copy items
 WORKDIR /app
+COPY data/puppets ./data/puppets/
 COPY sockpuppet.py ./
 COPY requirements.txt ./
 
@@ -51,3 +52,4 @@ RUN apt-get install -y chromium
 RUN google-chrome-stable --version
 RUN chromedriver --version
 RUN youtube-dl --version
+
