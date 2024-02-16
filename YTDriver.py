@@ -237,7 +237,7 @@ class YTDriver:
             # grab preview text to determine ad type
             text = preview.text.replace('\n', ' ')
             wait = 0
-            if 'after ad' in text:
+            if 'after ad' or 'plays soon' in text:
                 # unskippable ad, grab ad length
                 length = self.driver.find_elements(By.CLASS_NAME, 'ytp-ad-duration-remaining')[0].text
                 wait = time2seconds(length)
@@ -269,6 +269,7 @@ class YTDriver:
     def __init_chrome(self, profile_dir, headless):
         options = ChromeOptions()
         options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage') 
         options.add_argument('--window-size=1920,1080')
 
         if profile_dir is not None:

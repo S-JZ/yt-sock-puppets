@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yt-watch
+spec:
+  replicas: 100
+  selector:
+    matchLabels:
+      app: yt-watch
+  template:
+    metadata:
+      labels:
+        app: yt-watch
+    spec:
+      containers:
+      - name: sockppts
+        image: sockppts.azurecr.io/ss/youtube-sock-puppet:latest
+        command: ["/bin/sh", "-c"]
+        args: ["cat /startup-scripts/startup-commands.txt | sh"]
+        volumeMounts:
+        - name: startup-scripts
+          mountPath: /startup-scripts
+          readOnly: true
+      volumes:
+      - name: startup-scripts
+        configMap:
+          name: startup-commands
+
