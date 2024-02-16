@@ -22,8 +22,7 @@ def parse_args():
     parser.add_argument('--simulate', action="store_true", help='Only generate arguments but do not start containers')
     parser.add_argument('--max-containers', default=10, type=int, help="Maximum number of concurrent containers")
     parser.add_argument('--sleep-duration', default=60, type=int, help="Time to sleep (in seconds) when max containers are reached and before spawning additional containers")
-    parser.add_argument('--training-videos', default='data/training-videos.csv')
-    parser.add_argument('--testing-videos', default='data/puppets/user_0.csv')
+    parser.add_argument('--videos', default='data/videos.csv', help='Path to the videos file')
     args = parser.parse_args()
     return args, parser
 
@@ -49,32 +48,26 @@ def max_containers_reached(client, max_containers):
         return len(client.containers.list()) >= max_containers
     except:
         return True
-
-def in_range(df, key, mi, mx):
-    return df[(df[key] > mi) & (df[key] <= mx)]['video_id']
-
-def get_training_videos(csv):
-    slant = pd.read_csv(csv)
     
-    return {
-        'Left': in_range(slant, 'slant', -1.1, -0.6),
-       # 'CenterLeft': in_range(slant, 'slant', -0.6, -0.2),
-       # 'Center': in_range(slant, 'slant', -0.2, 0.2),
-       # 'CenterRight': in_range(slant, 'slant', 0.2, 0.6),
-        'Right': in_range(slant, 'slant', 0.6, 1.1)
-    }
+def in_range(df, low, high):
+    return df.iloc[low:high]
 
-def spawn_containers(args, filename, LABELS):
+def get_intervention_videos(videos_file, interval=100, user_id=0):
+    # read the videos file
+    videos = pd.read_csv(videos_file, header=None)
+    # calculate the lower and upper bounds of the interval for the given user_id
+    low = user_id * interval
+    high = (user_id + 1) * interval
+    # filter videos per user (interval of 100)
+    videos = in_range(videos, low, high)
+    # return the videos
+    return videos
+
+def spawn_containers(args, num_of_users=1):
     # get docker client
     client = docker.from_env()
-    
 
-    # get video distribution
-    #videos = get_training_videos(args.training_videos)
-
-    # get seeds
-    seeds = pd.read_csv('./data/puppets/' + filename, header=None)[0].to_list()
-
+    USERS = [f'user_{i}' for i in range(num_of_users)]
     
     # spawn containers for each user
     count = 0
@@ -86,25 +79,21 @@ def spawn_containers(args, filename, LABELS):
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
-    # training ideology
-    for label in LABELS:
-
-        # user watch history for training
-        # * 2 for additional backups
-        #training = videos[training_label].sample(NUM_TRAINING_VIDEOS * 2).to_list()
-        
+    for user in USERS:
         # check for running container list
         while max_containers_reached(client, args.max_containers):
             # sleep for a minute if maxContainers are active
             print("Max containers reached. Sleeping...")
             sleep(args.sleep_duration)
-
-
+        # read videos for intervention
+        videos = get_intervention_videos(args.videos, user_id=int(user.split('_')[-1]))
+        # get seeds
+        seeds = videos[0].to_list()
         # try test seeds
         testSeed = choice(seeds)
 
         # generate a unique puppet identifier
-        puppetId = f'{label},{testSeed},{str(uuid4())[:8]}'
+        puppetId = f'{user},{testSeed},{str(uuid4())[:8]}'
 
         # write arguments to a file
         with open(os.path.join(ARGS_DIR, f'{puppetId}.json'), 'w') as f:
@@ -116,11 +105,8 @@ def spawn_containers(args, filename, LABELS):
                 description='',
                 # output directory for sock puppet
                 outputDir='/output',
-                intervention=seeds,
-                # list of training videos
-                #training=training,
-                # number of training videos
-                #trainingN=NUM_TRAINING_VIDEOS,
+                # videos to watch
+                intervention=videos,
                 # seed video
                 testSeed=testSeed,
                 # steps to perform
@@ -132,7 +118,6 @@ def spawn_containers(args, filename, LABELS):
         # spawn container if it's not a simulation
         if not args.simulate:
             print("Spawning container...")
-
             # set outputDir as "/output"
             command = ['python3', 'sockpuppet.py', f'/args/{puppetId}.json']
 
@@ -160,9 +145,9 @@ def main():
         build_image()
         print("Build complete!")
 
-    if args.simulate:
-        for filename in os.listdir("./data/puppets/"):
-            spawn_containers(args, filename, [filename[:-4]])
+    if args.run:
+        print("Starting docker containers...")
+        spawn_containers(args)
 
     if not args.build and not args.run:
         parser.print_help()
