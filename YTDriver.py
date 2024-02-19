@@ -35,6 +35,7 @@ class YTDriver:
             print("Initializing Chrome")
             self.driver = self.__init_chrome(profile_dir, headless)
         elif browser == 'firefox':
+            print("Initializing Firefox")
             self.driver = self.__init_firefox(profile_dir, headless)
         else:
             raise Exception("Invalid browser", browser)
@@ -286,6 +287,7 @@ class YTDriver:
             pass
         if headless:
             options.add_argument('--headless')
+        print("Launching Firefox")
 
         service = Service(log_path=os.path.devnull)
         return Firefox(options=options, service=service)

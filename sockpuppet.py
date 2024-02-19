@@ -16,7 +16,7 @@ def init_puppet(puppetId, profile_dir):
     global puppet
     puppet = dict(
         # driver=YTDriver(verbose=True, profile_dir=profile_dir),#, use_virtual_display=True),
-        driver=YTDriver(browser='chrome', verbose=True, use_virtual_display=True),
+        driver=YTDriver(browser='firefox', verbose=True, use_virtual_display=True),
         puppetId=puppetId,
         actions=[],
         start_time=datetime.now()
@@ -30,7 +30,7 @@ def makedir(outputDir, d):
     return dir
 
 def make_url(videoId):
-    return 'https://youtube.com/watch?v=%s' % videoId
+    return 'https://youtube.com/watch?v=' + str(videoId)
 
 def add_action(action, params=None):
     print(action, params)

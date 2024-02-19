@@ -61,7 +61,7 @@ def get_intervention_videos(videos_file, interval=100, user_id=0):
     # filter videos per user (interval of 100)
     videos = in_range(videos, low, high)
     # return the videos
-    return videos
+    return videos[0]
 
 def spawn_containers(args, num_of_users=1):
     # get docker client
@@ -86,9 +86,10 @@ def spawn_containers(args, num_of_users=1):
             print("Max containers reached. Sleeping...")
             sleep(args.sleep_duration)
         # read videos for intervention
-        videos = get_intervention_videos(args.videos, user_id=int(user.split('_')[-1]))
+        videos = get_intervention_videos(args.videos, user_id=int(user.split('_')[-1])).tolist()
         # get seeds
-        seeds = videos[0].to_list()
+        seeds = videos
+
         # try test seeds
         testSeed = choice(seeds)
 
