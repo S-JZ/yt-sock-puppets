@@ -62,13 +62,16 @@ class YTDriver:
         # try to find the youtube icon
         try:
             self.__log('Clicking homepage icon')
-            self.driver.find_element(By.ID, 'logo-icon').click()
+            self.driver.find_element(By.ID, 'yt-icon').click()
         except:
             self.__log('Getting homepage via URL')
             self.driver.get('https://www.youtube.com')
 
         # wait for page to load
         sleep(2)
+        elems = WebDriverWait(self.driver, 30).until(
+            EC.presence_of_all_elements_located((By.TAG_NAME, 'ytd-rich-item-renderer'))
+        )
 
         # scroll page to load more results
         for _ in range(scroll_times):
@@ -158,11 +161,17 @@ class YTDriver:
         
         """
         try:
-            self.__click_video(video)
+            self.driver.get(video.url)
+            #self.__click_video(video)
+            self.__log("Loaded video url")
             self.__check_video_availability()
+            self.__log("Video availability checks passed")
             self.__click_play_button()
+            self.__log("Clicked play button")
             self.__handle_ads()
+            self.__log("Handled Ads")
             self.__clear_prompts()
+            self.__log("Cleared prompts")
             sleep(duration)
         except WebDriverException as e:
             self.__log(e)
@@ -215,7 +224,8 @@ class YTDriver:
             playBtn = self.driver.find_elements(By.CLASS_NAME, 'ytp-play-button')
             if 'Play' in playBtn[0].get_attribute('title'):
                 playBtn[0].click()
-        except:
+        except Exception as e:
+            self.__log("An exception occured while clicking the Play button:" + str(e))
             pass
 
     def __handle_ads(self):
@@ -264,14 +274,15 @@ class YTDriver:
         try:
             sleep(1)
             self.driver.find_element(By.XPATH, '/html/body/ytd-app/ytd-popup-container/tp-yt-iron-dropdown/div/yt-tooltip-renderer/div[2]/div[1]/yt-button-renderer/a/tp-yt-paper-button/yt-formatted-string').click()
-        except:
+        except Exception as e:
+            self.__log("Exception occured while clearing prompts:" + str(e))
             pass
     
     def __init_chrome(self, profile_dir, headless):
         options = ChromeOptions()
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage') 
+        options.add_argument('--no-sandbox') 
         options.add_argument('--window-size=1920,1080')
+        options.page_load_strategy = 'normal'
 
         if profile_dir is not None:
             options.add_argument('--user-data-dir=%s' % profile_dir)

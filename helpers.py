@@ -41,7 +41,7 @@ class VideoUnavailableException(Exception):
     """
     Exception thrown when a played video is private/deleted/copyright struck.
     """
-    pass
+    print("Video unavailable")
 
 
 def time2seconds(s):

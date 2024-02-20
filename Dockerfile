@@ -30,19 +30,21 @@ RUN apt install -y wget g++ unzip xvfb firefox-esr
 RUN pip install -r requirements.txt
 
 # Install chrome
-RUN wget http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_121.0.6167.139-1_amd64.deb
-RUN apt install -y ./google-chrome-stable_121.0.6167.139-1_amd64.deb
+RUN wget https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.184/linux64/chrome-linux64.zip
+RUN unzip ./chrome-linux64.zip -d chrome
 
 # Download youtube-dl
 RUN wget https://github.com/ytdl-org/ytdl-nightly/releases/download/2024.01.23/youtube-dl
 RUN chmod +x youtube-dl
 
 # Download chromedriver
-RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/linux64/chromedriver-linux64.zip
+RUN wget https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.184/linux64/chromedriver-linux64.zip
 RUN unzip chromedriver-linux64.zip -d chromedriver-linux64
 
 RUN mv chromedriver-linux64/chromedriver-linux64/chromedriver /app/chromedriver
 
+RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux32.tar.gz
+RUN tar xvf geckodriver-v0.34.0-linux32.tar.gz
 
 #set display port to avoid crash
 ENV DISPLAY=:99
@@ -51,7 +53,5 @@ ENV DISPLAY=:99
 RUN apt install -y ffmpeg
 RUN apt-get install -y chromium
 # run chrome to test
-RUN google-chrome-stable --version
 RUN chromedriver --version
 RUN youtube-dl --version
-

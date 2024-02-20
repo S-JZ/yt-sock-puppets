@@ -2,6 +2,7 @@ from YTDriver import YTDriver
 from helpers import Video, VideoUnavailableException
 import sys
 import json
+import time
 from datetime import datetime
 import os
 from random import choice
@@ -16,7 +17,7 @@ def init_puppet(puppetId, profile_dir):
     global puppet
     puppet = dict(
         # driver=YTDriver(verbose=True, profile_dir=profile_dir),#, use_virtual_display=True),
-        driver=YTDriver(browser='firefox', verbose=True, use_virtual_display=True),
+        driver=YTDriver(browser='chrome', verbose=True, use_virtual_display=True),
         puppetId=puppetId,
         actions=[],
         start_time=datetime.now()
@@ -48,7 +49,10 @@ def get_recommendations():
 
 def watch(video: Video, duration):
     driver = puppet['driver']
-    driver.play(video, duration=duration)
+    try:
+        driver.play(video, duration=duration)
+    except VideoUnavailableException as e:
+         pass
     add_action('watch', video.videoId)
 
 def save_puppet():
@@ -109,9 +113,13 @@ def intervention():
     get_homepage()
     add_action("intervention_start")
     for videoId in args['intervention']:
+        print("Loading video:", videoId)
         video = Video(None, make_url(videoId))
         watch(video, args['duration'])
+        print("Video watched successfully")
         get_homepage()
+        time.sleep(1)
+
     add_action("intervention_end")
 
 

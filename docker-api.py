@@ -123,18 +123,24 @@ def spawn_containers(args, num_of_users=1):
             command = ['python3', 'sockpuppet.py', f'/args/{puppetId}.json']
 
             # run the container
-            container = client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=True, user=USERNAME, detach=True)
+            container = client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='1000M', remove=True, user=USERNAME, detach=True)
             # Capture and print the logs
+            logfile = []
             logs = container.logs(stdout=True, stderr=True, stream=True)
             for log in logs:
                 print(log.decode('utf-8').strip())
+                logfile.append(log.decode('utf-8').strip())
 
             # Optionally, you can wait for the container to finish and get the exit code
             exit_code = container.wait()['StatusCode']
+            logfile.append(f"Container exited with code: {exit_code}")
             print(f"Container exited with code: {exit_code}")
+            f = open("output/logfile.txt", "w")
+            f.writelines(logfile)
+            f.close()
         # increment count of containers
         count += 1
-
+ 
     print("Total containers spawned:", count)
 
 def main():
