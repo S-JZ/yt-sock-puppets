@@ -109,18 +109,19 @@ def test():
         video = r[0]
     add_action("testing_end")
 
-def intervention():
+def trainWatch():
     get_homepage()
-    add_action("intervention_start")
+    add_action("Watch_start")
     for videoId in args['intervention']:
         print("Loading video:", videoId)
         video = Video(None, make_url(videoId))
         watch(video, args['duration'])
         print("Video watched successfully")
-        get_homepage()
+
+
         time.sleep(1)
 
-    add_action("intervention_end")
+    add_action("Watch_end")
 
 
 if __name__ == '__main__':
@@ -136,11 +137,10 @@ if __name__ == '__main__':
                 train()
             if action == 'test':
                 test()
-            if action == 'intervention':
-                intervention()
+            if action == 'trainWatch':
+                trainWatch()
     
         # finalize puppet
-        puppet['driver'].close()
         puppet['steps'] = args['steps']
         puppet['duration'] = args['duration']
         puppet['description'] = args['description']
@@ -150,3 +150,7 @@ if __name__ == '__main__':
         print(exception)
         with open(os.path.join(makedir(args['outputDir'], 'exceptions'), args['puppetId']), 'w') as f:
             json.dump(exception, f, default=str)
+        puppet['steps'] = args['steps']
+        puppet['duration'] = args['duration']
+        puppet['description'] = args['description']
+        save_puppet()
