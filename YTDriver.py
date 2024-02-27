@@ -284,9 +284,8 @@ class YTDriver:
     
     def __init_chrome(self, profile_dir, headless):
         options = ChromeOptions()
-        options.add_argument('--no-sandbox') 
+        options.add_argument('--no-sandbox')
         options.add_argument('--window-size=1920,1080')
-        options.page_load_strategy = 'normal'
 
         if profile_dir is not None:
             options.add_argument('--user-data-dir=%s' % profile_dir)
