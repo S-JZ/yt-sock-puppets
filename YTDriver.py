@@ -64,14 +64,15 @@ class YTDriver:
             self.__log('Clicking homepage icon')
             self.driver.find_element(By.ID, 'logo-icon').click()
         except:
-            self.__log('Getting homepage via URL')
-            self.driver.get('https://www.youtube.com')
+            try:
+                self.__log('Getting homepage via URL')
+                self.driver.get('https://www.youtube.com')
+            except:
+                sleep(2)
+                pass
 
         # wait for page to load
         sleep(2)
-        elems = WebDriverWait(self.driver, 30).until(
-            EC.presence_of_all_elements_located((By.TAG_NAME, 'ytd-rich-grid-renderer'))
-        )
 
         # scroll page to load more results
         for _ in range(scroll_times):
@@ -80,7 +81,7 @@ class YTDriver:
             
 
         # collect video-like tags from homepage
-        videos = self.driver.find_elements(By.XPATH, '//div[@id="contents"]/ytd-rich-grid-renderer')
+        videos = self.driver.find_elements(By.XPATH, '//div[@id="contents"]/ytd-rich-item-renderer')
 
         # identify actual videos from tags
         homepage = []
@@ -275,9 +276,8 @@ class YTDriver:
             sleep(1)
             #self.driver.find_element(By.CLASS_NAME, 'yt-spec-button-shape-next yt-spec-button-shape-next--text yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m').click()
            # self.driver.find_element(By.XPATH, '/html/body/ytd-app/ytd-popup-container/tp-yt-iron-dropdown/div/yt-tooltip-renderer/div[2]/div[1]/yt-button-renderer/a/tp-yt-paper-button/yt-formatted-string').click()
-           WebDriverWait(self.driver, 5).until(
-                EC.element_to_be_clickable((By.XPATH, '/html/body/ytd-app/ytd-popup-container/tp-yt-iron-dropdown/div/yt-tooltip-renderer/div[2]/div[1]/yt-button-renderer/a/tp-yt-paper-button/yt-formatted-string'))).click()
-           WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="yDmH0d"]/c-wiz/div[2]/div/div/div/div/div[2]/form'))).click()
+            WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, '/html/body/ytd-app/ytd-popup-container/tp-yt-iron-dropdown/div/yt-tooltip-renderer/div[2]/div[1]/yt-button-renderer/a/tp-yt-paper-button/yt-formatted-string'))).click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="yDmH0d"]/c-wiz/div[2]/div/div/div/div/div[2]/form'))).click()
         except Exception as e:
             self.__log("Exception occured while clearing prompts:" + str(e))
             pass

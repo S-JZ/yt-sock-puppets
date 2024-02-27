@@ -17,7 +17,7 @@ def init_puppet(puppetId, profile_dir):
     global puppet
     puppet = dict(
         # driver=YTDriver(verbose=True, profile_dir=profile_dir),#, use_virtual_display=True),
-        driver=YTDriver(browser='chrome', verbose=True, use_virtual_display=True),
+        driver=YTDriver(browser='chrome', profile_dir=profile_dir, headless=True ,verbose=True, use_virtual_display=True),
         puppetId=puppetId,
         actions=[],
         start_time=datetime.now()
@@ -100,7 +100,9 @@ def train():
     add_action("training_end")
 
 def test():
-    get_homepage()
+    for _ in range(4):
+        get_homepage()
+        time.sleep(1)
     add_action("testing_start")
     video = Video(None, make_url(args['testSeed']))
     for _ in range(20):
