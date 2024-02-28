@@ -30,7 +30,7 @@ RUN pip install -r requirements.txt
 
 # Install chrome
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.69/linux64/chrome-linux64.zip
-RUN unzip chrome-linux64
+RUN unzip chrome-linux64.zip -d chrome
 
 # Download youtube-dl
 RUN wget https://github.com/ytdl-org/ytdl-nightly/releases/download/2024.01.23/youtube-dl
@@ -38,7 +38,8 @@ RUN chmod +x youtube-dl
 
 # Download chromedriver
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.69/linux64/chromedriver-linux64.zip
-RUN unzip chromedriver-linux64.zip
+RUN unzip chromedriver-linux64.zip -d chromedriver-linux64
+RUN mv chromedriver-linux64/chromedriver-linux64/chromedriver /chromedriver
 
 #set display port to avoid crash
 ENV DISPLAY=:99
