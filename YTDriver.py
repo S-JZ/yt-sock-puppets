@@ -85,7 +85,7 @@ class YTDriver:
 
         # identify actual videos from tags
         homepage = []
-        for video in videos:
+        for video in videos[:25]:
             a = video.find_elements(By.TAG_NAME, 'a')[0]
             href = a.get_attribute('href')
             if href is not None and href.startswith('https://www.youtube.com/watch?'):
