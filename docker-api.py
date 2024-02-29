@@ -20,11 +20,12 @@ def parse_args():
     parser.add_argument('--build', action="store_true", help='Build docker image')
     parser.add_argument('--run', action="store_true", help='Run all docker containers')
     parser.add_argument('--simulate', action="store_true", help='Only generate arguments but do not start containers')
-    parser.add_argument('--max-containers', default=10, type=int, help="Maximum number of concurrent containers")
+    parser.add_argument('--max-containers', default=50, type=int, help="Maximum number of concurrent containers")
     parser.add_argument('--sleep-duration', default=60, type=int, help="Time to sleep (in seconds) when max containers are reached and before spawning additional containers")
     parser.add_argument('--num-of-users', default=250, type=int, help="Number of sock puppets to spawn")
-    parser.add_argument('--videos', default='data/videos.csv', help='Path to the videos file')
-    parser.add_argument('--testing-videos', default='data/yt_links_test.csv', help='Path to the testing videos file')
+    parser.add_argument('--videos', default='data/videos_sh.csv', help='Path to the videos file')
+    parser.add_argument('--batch', default=1, type=int, help="Batch of sock puppets (1-10)")
+    parser.add_argument('--testing-videos', default='data/videos_sh.csv', help='Path to the testing videos file')
     args = parser.parse_args()
     return args, parser
 
@@ -54,16 +55,16 @@ def max_containers_reached(client, max_containers):
 def in_range(df, low, high):
     return df.iloc[low:high]
 
-def get_videos(videos_file, interval=100, user_id=0):
+def get_videos(videos_file, interval=100, user_id=0, batch=1):
     # read the videos file
-    videos = pd.read_csv(videos_file, header=None)
-    # calculate the lower and upper bounds of the interval for the given user_id
-    low = user_id * interval
-    high = (user_id + 1) * interval
-    # filter videos per user (interval of 100)
-    videos = in_range(videos, low, high)
+    videos = pd.read_csv(videos_file)[batch-1]
+    # # calculate the lower and upper bounds of the interval for the given user_id
+    # low = user_id * interval
+    # high = (user_id + 1) * interval
+    # # filter videos per user (interval of 100)
+    # videos = in_range(videos, low, high)
     # return the videos
-    return videos[0]
+    return videos.to_list()
 
 def spawn_containers(args):
     # get docker client
@@ -88,9 +89,9 @@ def spawn_containers(args):
             print("Max containers reached. Sleeping...")
             sleep(args.sleep_duration)
         # read videos for intervention
-        videos = get_videos(args.videos, user_id=int(user.split('_')[-1])).tolist()
+        videos = get_videos(args.videos, user_id=int(user.split('_')[-1]), batch=args.batch).tolist()
         # get seeds
-        seeds = pd.read_csv(args.testing_videos)['video_id'].to_list()
+        seeds = videos #pd.read_csv(args.testing_videos)['video_id'].to_list()
 
         # try test seeds
         testSeed = choice(seeds)
