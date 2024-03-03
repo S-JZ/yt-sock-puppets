@@ -85,12 +85,15 @@ class YTDriver:
 
         # identify actual videos from tags
         homepage = []
-        for video in videos[:25]:
+        count = 0
+        for video in videos:
             a = video.find_elements(By.TAG_NAME, 'a')[0]
             href = a.get_attribute('href')
-            if href is not None and href.startswith('https://www.youtube.com/watch?'):
+            if href is not None and href.startswith('https://www.youtube.com/watch?') and count < 25:
                 homepage.append(Video(a, href))
-
+                count += 1
+                if count > 25:
+                    break
         return homepage
 
     def get_recommendations(self, topn=5):
