@@ -13,9 +13,10 @@ For starters, you can just run `python docker-api.py --build --run --max-contain
   4. Start docker containers for the five sock puppets. These sock puppets will run in parallel immediately and write their output to the _output/puppets_ directory once finished.
   
 
-There are two main files in this repository.
+There are three main files in this repository.
   - `docker-api.py`: Provides an API for running Docker commands and creating/running sock puppet containers. The script generates arguments for the sock puppets as well.
   - `sockpuppet.py`: The actual sock puppet implementation that runs inside each container. This is the code that runs for each individual sock puppet.
+  - `data/data.py`: This is used to create csv files having the videos per category to run the sock puppets on. 
 
 ### docker-api.py
 Inside `docker-api.py`, you'll find some parameters and arguments. Here's an overview of what they do.
@@ -65,6 +66,14 @@ The output is a JSON file which contains the input arguments, timestamps, and _a
   - `testing_end`: Marks the end of testing.
 
 The actions array is sorted by the order of the action performed. You can parse the output by iterating over the actions for each sock puppet. The script is modular enough to define a custom set of actions as well.
+
+### data/data.py
+Inside this file, you can change the code accordingly to use different source files(csvs) per category. (These source files should be in the data subdirectory) 
+
+There must be traces.json file present containing the real users' watch histories.
+
+
+
 
 
 ## Help with Docker
